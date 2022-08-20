@@ -5,6 +5,9 @@
     "@kensoni/big-number": "^0.0.8",
     "@kensoni/react-hooks": "^0.0.7"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "start": "yarn storybook",
     "build": "tsc",
