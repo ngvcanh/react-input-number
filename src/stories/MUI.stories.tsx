@@ -7,7 +7,7 @@ export default {
   title: 'Render Input/Material UI (MUI)'
 }
 
-const Template: Story = () => {
+const Template: Story = function DemoWithMUI(){
 
   const [ currentValue, setCurrentValue ] = useState('');
 
@@ -20,6 +20,7 @@ const Template: Story = () => {
     <InputNumber
       format
       onChange={ onChangeNumber }
+      value={ currentValue }
       renderInput={(inputProps, inputRef) => {
         return <TextField 
           inputProps={ inputProps }
