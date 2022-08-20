@@ -1,46 +1,72 @@
-# Getting Started with Create React App
+# React Input Number
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Handle Input number with React. Support Material UI (MUI)
 
-## Available Scripts
+## Installation
 
-In the project directory, you can run:
+```
+# npm
+npm i @kensoni/react-input-number
 
-### `npm start`
+# Yarn
+yarn add @kensoni/react-input-number
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Playground with storybook
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```
+git clone https://github.com/ngvcanh/react-input-number
+cd react-input-number
+yarn install
+yarn start
+```
 
-### `npm test`
+[Live demo](https://ngvcanh.github.io/react-input-number)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## API
 
-### `npm run build`
+Using all `props` of `HTMLInputElement` without prop `type`. In addition, there are some additional props:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Prop name | Type | Description |
+|---|---|---|
+| comma | _boolean_ | Format number with using `,` separate integer and decimal part. Only working when prop `format` is `true` |
+| disableNegative | _boolean_ | Negative numbers are not allowed in input |
+| format | _boolean_ | Enable format value for input |
+| formatOnlyBlur | _boolean_ | Only format input number when focus out input |
+| renderInput | _Function_ | Using for render another input if using third party library |
+| value | _string_, _number_ | Default value for input number. Accept normal number, format number, format comma number |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Render Input Function With Material UI (MUI)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```tsx
+import { ChangeEvent } from 'react';
+import InputNumber from '@kensoni/react-input-number';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
 
-### `npm run eject`
+export default function App(){
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+  const [ value, setValue ] = useState('');
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+  }
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+  return <Box>
+    <InputNumber 
+      format
+      value={ value }
+      onChange={ onChange }
+      renderInput={(inputProps, inputRef) => (
+        <TextField fullWidth inputProps={ inputProps } inputRef={ inputRef } />
+      )}
+    />
+    <Box component="pre" sx={{ mt: 3 }}>{ value }</Box>
+  </Box>
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+}
+```
 
-## Learn More
+Make sure that the properties from the function's inputProps are attached to the TextField's inputProps. Do not override this props on TextField props.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Each time the onChange event emit, the cursor will jump to the end of the input. In case of preserving the cursor position, make sure that the function's inputRef must be attached to the TextField's inputRef to hold the pointer.
