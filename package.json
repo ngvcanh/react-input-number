@@ -30,6 +30,10 @@
   "bugs": {
     "url": "https://github.com/ngvcanh/react-input-number/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ngvcanh/react-input-number.git"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
