@@ -30,6 +30,7 @@
     ".storybook",
     "node_modules",
     "src/stories",
-    "public"
+    "public",
+    "build"
   ]
 }
