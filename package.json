@@ -1,17 +1,31 @@
 {
   "name": "@kensoni/react-input-number",
   "version": "0.0.1",
-  "private": true,
   "dependencies": {
+    "@kensoni/big-number": "^0.0.8",
     "@kensoni/react-hooks": "^0.0.7"
   },
   "scripts": {
     "start": "yarn storybook",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "build": "tsc",
     "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "predeploy": "npm run build-storybook -- -o build",
+    "deploy": "gh-pages -d build"
+  },
+  "keywords": [
+    "number",
+    "input",
+    "input-number",
+    "react-input-number",
+    "mui-input-number",
+    "material-input-number"
+  ],
+  "description": "Handle input number with React. Support Material UI (MUI)",
+  "author": "Ken Nguyen <ngvcanh2014@gmail.com> (https://github.com/ngvcanh)",
+  "homepage": "https://ngvcanh.github.io/react-input-number",
+  "bugs": {
+    "url": "https://github.com/ngvcanh/react-input-number/issues"
   },
   "eslintConfig": {
     "extends": [
@@ -42,6 +56,9 @@
     ]
   },
   "devDependencies": {
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.10.0",
+    "@mui/material": "^5.10.1",
     "@storybook/addon-actions": "^6.5.10",
     "@storybook/addon-essentials": "^6.5.10",
     "@storybook/addon-interactions": "^6.5.10",
@@ -52,9 +69,6 @@
     "@storybook/preset-create-react-app": "^4.1.2",
     "@storybook/react": "^6.5.10",
     "@storybook/testing-library": "^0.0.13",
-    "babel-plugin-named-exports-order": "^0.0.2",
-    "prop-types": "^15.8.1",
-    "webpack": "^5.74.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
@@ -62,10 +76,14 @@
     "@types/node": "^16.11.47",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
+    "babel-plugin-named-exports-order": "^0.0.2",
+    "gh-pages": "^4.0.0",
+    "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.7.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "webpack": "^5.74.0"
   }
 }

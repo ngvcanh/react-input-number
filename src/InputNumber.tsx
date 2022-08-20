@@ -2,43 +2,56 @@ import {
   ChangeEvent,
   ClipboardEvent,
   DetailedHTMLProps,
+  FocusEvent,
   forwardRef,
-  HTMLAttributes,
+  InputHTMLAttributes,
   KeyboardEvent,
   MutableRefObject,
+  ReactElement,
   Ref,
   useEffect,
   useRef,
   useState
 } from "react";
+import { existSep, isCommandKey, isWhiteKeys, revertByChange } from "./utils";
+import BigNumber from "@kensoni/big-number";
 import useEmitControl from "@kensoni/react-hooks/useEmitControl";
-import formatNumber from "./formatNumber";
+import useForceUpdate from "@kensoni/react-hooks/useForceUpdate";
 
-export interface InputNumberProps 
-  extends DetailedHTMLProps<HTMLAttributes<HTMLInputElement>, HTMLInputElement>{
-    /**
-     * Current value of input
-     */
-    value?: number;
+export interface InputNumberBaseProps extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>{}
 
-    /**
-     * Enable format number inside input
-     */
-    format?: boolean;
+export interface InputNumberProps extends InputNumberBaseProps{
+  /**
+   * Current value of input
+   */
+  value?: string | number;
 
-    /**
-     * Use commas as separators between integer and decimal part
-     */
-    comma?: boolean;
-  }
+  /**
+   * Enable format number inside input
+   */
+  format?: boolean;
 
-const onlyKeys = [
-  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.',
-  'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Backspace'
-];
+  /**
+   * Use commas as separators between integer and decimal part
+   */
+  comma?: boolean;
+
+  /**
+   * Disable press key `-` on keyboard and paste event
+   */
+  disableNegative?: boolean;
+
+  /**
+   * Only format value of input when pointer focus out input
+   */
+  formatOnlyBlur?: boolean;
+
+  /**
+   * Function get the JSX Element for render input
+   */
+  renderInput?(props: InputNumberBaseProps, ref: Ref<unknown>): ReactElement;
+}
   
-const isPaste = (e: KeyboardEvent) => e.key === 'v' && e.ctrlKey;
-
 const InputNumber = forwardRef(
   function InputNumber(props: InputNumberProps, ref: Ref<HTMLInputElement>){
 
@@ -46,18 +59,32 @@ const InputNumber = forwardRef(
       value,
       format,
       comma,
+      disableNegative,
+      defaultValue,
+      formatOnlyBlur,
       onKeyDown,
       onPaste,
-      onChange
+      onChange,
+      onFocus,
+      onBlur,
+      renderInput,
+      ...rest
     } = props;
 
+    const opt = useRef({ comma })
+    const focus = useRef(false);
+    const cursor = useRef<number | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const [ currentValue, setCurrentValue ] = useState(value);
+    const shouldUpdate = useRef(false);
+
     const emitChangeInput = useEmitControl(inputRef);
-    const addSeparator = useRef(false);
+    const forceUpdate = useForceUpdate();
+
+    const [ currentValue, setCurrentValue ] = useState(new BigNumber(value ?? '', opt.current));
 
     useEffect(() => {
-      value === currentValue || setCurrentValue(value);
+      const newBig = new BigNumber(value ?? '', opt.current);
+      newBig.value === currentValue.value || setCurrentValue(newBig);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ value ]);
 
@@ -68,100 +95,124 @@ const InputNumber = forwardRef(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const onKeyDownInput = (e: KeyboardEvent<HTMLInputElement>) => {
-      const { key } = e;
+    useEffect(() => {
+      const input = inputRef.current;
+      input && input.setSelectionRange(cursor.current, cursor.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ currentValue, value, inputRef, cursor ]);
 
-      if (!onlyKeys.includes(key) && !isPaste(e)){
+    const onKeyDownInput = (e: KeyboardEvent<HTMLInputElement>) => {
+      const { key } = e, isNotCommand = !isCommandKey(e);
+
+      if (
+        (!isWhiteKeys(key, currentValue, comma, disableNegative) && isNotCommand) 
+        || existSep(key, currentValue, comma)
+      ){
         e.preventDefault();
         return;
-      }
-
-      if (key === '.'){
-        addSeparator.current = !(currentValue?.toString().includes('.') ?? false);
-      }
-      else{
-        addSeparator.current = false;
       }
 
       if (key === 'ArrowDown' || key === 'ArrowUp'){
         e.preventDefault();
-
-        const preValue = key === 'ArrowDown' ? 1 : -1;
-        const newValue = (currentValue ?? preValue) + (preValue * -1);
+        const newValue = currentValue.add(new BigNumber(key === 'ArrowDown' ? -1 : 1))
 
         onKeyDown && onKeyDown(e);
-        emitChangeInput('change', newValue.toString());
+        emitChangeInput('change', newValue.formatValue);
 
         return;
       }
       
+      cursor.current = ((e.target as HTMLInputElement).selectionStart ?? 0);
+      if (isNotCommand) cursor.current = cursor.current + 1;
+
+      shouldUpdate.current = true;
       onKeyDown && onKeyDown(e);
     }
 
     const onPasteInput = (e: ClipboardEvent<HTMLInputElement>) => {
-      let data = e.clipboardData.getData('text');
-      if (format && data){
-        if (comma){
-          data = data.replace(/\./g, '').replace(',', '.');
-        }
-        else{
-          data = data.replace(/,/g, '');
-        }
+      const clipboardValue = BigNumber.from(e.clipboardData.getData('text').trim(), opt.current).abs();
+      const { value, selectionStart, selectionEnd } = e.target as HTMLInputElement;
+
+      const first = value.substring(0, selectionStart ?? 0);
+      const last = value.substring(selectionEnd ?? 0);
+
+      let valClip = clipboardValue.toString();
+
+      if (value.includes(format && comma ? ',' : '.')){
+        valClip = `${ clipboardValue.int }${ clipboardValue.dec }`;
       }
 
-      if (data && isNaN(parseFloat(data))){
+      const val = `${ first }${ valClip }${ last }`;
+
+      if (val === ''){
         e.preventDefault();
         return;
       }
 
+      const sepLenth = Math.floor(BigNumber.from(valClip).int.length / 3);
+      cursor.current = (cursor.current ?? 0) + valClip.length + sepLenth - 1;
+
+      e.clipboardData.setData('text/plain', valClip);
       onPaste && onPaste(e);
     }
 
     const onChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
-      let val = e.target.value;
+      const originVal = e.target.value
+      , val = revertByChange(originVal, comma)
+      , newValue = new BigNumber(val, opt.current);
 
-      if (format && val){
-        if (comma){
-          val = val.replace(/\./g, '').replace(',', '.');
-        }
-        else{
-          val = val.replace(/,/g, '');
+      e.target.value = newValue.toString();
+
+      if ((cursor.current ?? 0) === originVal.length){
+        cursor.current = newValue.formatValue.length;
+      }
+
+      if (format && !formatOnlyBlur){
+        const dec = comma ? ',' : '.', sep = RegExp(`\\${ comma ? '.' : ',' }`, 'g');
+        const oldLength = BigNumber.from(currentValue.toString().split(dec)[0]).formatValue.split(',').length;
+        const newLength = BigNumber.from(originVal.split(dec)[0].replace(sep, '')).formatValue.split(',').length;
+        const { current } = cursor;
+
+        if (typeof current === 'number' && current > 0 && oldLength < newLength){
+          cursor.current = current + 1;
         }
       }
 
-      const _val = parseFloat(val);
-
-      if (val && isNaN(_val)) {
-        e.preventDefault();
-        return;
-      }
-
-      setCurrentValue(val ? _val : undefined);
-    
-      e.target.value = _val.toString();
+      setCurrentValue(newValue);
       onChange && onChange(e);
     }
 
-    let inputValue = currentValue?.toString() ?? '';
-
-    if (format && currentValue !== undefined){
-      inputValue = formatNumber(currentValue, {
-        comma
-      });
+    const onFocusInput = (e: FocusEvent<HTMLInputElement>) => {
+      focus.current = true;
+      onFocus && onFocus(e);
+      format && forceUpdate();
     }
 
-    if (addSeparator.current){
-      inputValue += comma ? ',' : '.';
-      addSeparator.current = false;
+    const onBlurInput = (e: FocusEvent<HTMLInputElement>) => {
+      focus.current = false;
+      onBlur && onBlur(e);
+      
+      if (format && formatOnlyBlur && shouldUpdate.current){
+        shouldUpdate.current = false;
+        forceUpdate();
+      }
     }
 
-    return <input
-      ref={ inputRef }
-      onKeyDown={ onKeyDownInput }
-      onPaste={ onPasteInput }
-      onChange={ onChangeInput }
-      value={ inputValue }
-    />
+    let inputValue = currentValue.value;
+    if (format && (!formatOnlyBlur || !focus.current)) inputValue = currentValue.formatValue;
+
+    const renderProps: InputNumberBaseProps = {
+      onKeyDown: onKeyDownInput,
+      onPaste: onPasteInput,
+      onChange: onChangeInput,
+      onFocus: onFocusInput,
+      onBlur: onBlurInput,
+      value: inputValue,
+      type: 'text',
+    }
+
+    if (renderInput) return renderInput(renderProps, inputRef);
+    return <input { ...rest } { ...renderProps } ref={ inputRef } />
 
   }
 );
