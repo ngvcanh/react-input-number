@@ -90,7 +90,12 @@ const InputNumber = forwardRef(
 
     useEffect(() => {
       if (ref){
-        (ref as MutableRefObject<HTMLInputElement>).current = inputRef.current!;
+        if (typeof ref === 'function'){
+          ref(inputRef.current);
+        }
+        else{
+          (ref as MutableRefObject<HTMLInputElement>).current = inputRef.current!;
+        }
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
