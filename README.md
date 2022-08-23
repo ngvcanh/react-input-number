@@ -39,7 +39,7 @@ Using all `props` of `HTMLInputElement` without prop `type`. In addition, there 
 ## Render Input Function With Material UI (MUI)
 
 ```tsx
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
 import InputNumber from '@kensoni/react-input-number';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
