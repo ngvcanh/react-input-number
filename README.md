@@ -47,6 +47,7 @@ Using all `props` of `HTMLInputElement` without prop `type`. In addition, there 
 | disableNegative | _boolean_ | Negative numbers are not allowed in input |
 | format | _boolean_ | Enable format value for input |
 | formatOnlyBlur | _boolean_ | Only format input number when focus out input |
+| integer | _boolean_ | Only enter integer for input |
 | renderInput | _Function_ | Using for render another input if using third party library |
 | value | _string_, _number_ | Default value for input number. Accept normal number, format number, format comma number |
 
