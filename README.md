@@ -4,6 +4,10 @@ Handle Input number with React. Support Material UI (MUI)
 
 ## Changelog
 
+### 0.0.4
+
+- Add `?` for prop `integer`.
+
 ### 0.0.3
 
 - Support flag `integer` only enter integer to input
