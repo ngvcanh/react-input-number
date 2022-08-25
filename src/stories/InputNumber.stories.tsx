@@ -40,6 +40,13 @@ FormatComma.args = {
   comma: true
 }
 
+export const IntegerAndComma = Template.bind({});
+IntegerAndComma.args = {
+  integer: true,
+  format: true,
+  comma: true
+}
+
 export const DisableNegative = Template.bind({});
 DisableNegative.args = {
   disableNegative: true

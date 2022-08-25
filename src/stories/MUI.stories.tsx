@@ -10,9 +10,14 @@ export default {
 const Template: Story = function DemoWithMUI(){
 
   const [ currentValue, setCurrentValue ] = useState('');
+  const [ currentInteger, setCurrentInteger ] = useState('');
 
   const onChangeNumber = (e: ChangeEvent<HTMLInputElement>) => {
     setCurrentValue(e.target.value);
+  }
+
+  const onChangeInteger = (e: ChangeEvent<HTMLInputElement>) => {
+    setCurrentInteger(e.target.value);
   }
 
   return <div>
@@ -23,6 +28,24 @@ const Template: Story = function DemoWithMUI(){
       value={ currentValue }
       renderInput={(inputProps, inputRef) => {
         return <TextField 
+          label="Format"
+          fullWidth
+          inputProps={ inputProps }
+          inputRef={ inputRef }
+        />
+      }}
+    />
+    <InputNumber
+      format
+      comma
+      integer
+      onChange={ onChangeInteger }
+      value={ currentInteger }
+      renderInput={(inputProps, inputRef) => {
+        return <TextField 
+          label="Format Comma and Integer"
+          fullWidth
+          sx={{ mt: 3 }}
           inputProps={ inputProps }
           inputRef={ inputRef }
         />

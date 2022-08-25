@@ -13,7 +13,7 @@ import {
   useRef,
   useState
 } from "react";
-import { existSep, isCommandKey, isWhiteKeys, revertByChange } from "./utils";
+import { isCommandKey, isWhiteKeys, revertByChange } from "./utils";
 import BigNumber from "@kensoni/big-number";
 import useEmitControl from "@kensoni/react-hooks/useEmitControl";
 import useForceUpdate from "@kensoni/react-hooks/useForceUpdate";
@@ -49,7 +49,7 @@ export interface InputNumberProps extends InputNumberBaseProps{
   /**
    * Only enter integer into input
    */
-  integer: boolean;
+  integer?: boolean;
 
   /**
    * Function get the JSX Element for render input
@@ -115,10 +115,7 @@ const InputNumber = forwardRef(
     const onKeyDownInput = (e: KeyboardEvent<HTMLInputElement>) => {
       const { key } = e, isNotCommand = !isCommandKey(e);
 
-      if (
-        (!isWhiteKeys(key, currentValue, comma, disableNegative, integer) && isNotCommand) 
-        || existSep(key, currentValue, comma)
-      ){
+      if (!isWhiteKeys(key, currentValue, comma, disableNegative, integer) && isNotCommand){
         e.preventDefault();
         return;
       }

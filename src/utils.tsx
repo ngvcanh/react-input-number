@@ -9,18 +9,16 @@ const WHITELIST_KEYS = [
 const COMMAND_KEYS = ['a', 'c', 'x', 'v', 'z', 'r']
 
 export function isWhiteKeys(key: string, value: BigNumber, comma?: boolean, disableNegative?: boolean, integer?: boolean){
+  const sep = comma ? ',' : '.';
+
   return WHITELIST_KEYS
-  .concat(integer ? [] : [ comma ? ',' : '.' ])
+  .concat((integer || existSep(value)) ? [] : [ sep ])
   .concat(!disableNegative && value.value === '' ? ['-'] : [])
   .includes(key);
 }
 
-export function existSep(key: string, value: BigNumber, comma?: boolean){
-  if (comma){
-    return key === ',' && value.isDecimal;
-  }
-
-  return key === '.' && value.isDecimal;
+export function existSep(value: BigNumber){
+  return value.toString().includes('.');
 }
 
 export function revertByChange(value: string, comma?: boolean){
