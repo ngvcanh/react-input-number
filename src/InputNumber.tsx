@@ -47,6 +47,11 @@ export interface InputNumberProps extends InputNumberBaseProps{
   formatOnlyBlur?: boolean;
 
   /**
+   * Only enter integer into input
+   */
+  integer: boolean;
+
+  /**
    * Function get the JSX Element for render input
    */
   renderInput?(props: InputNumberBaseProps, ref: Ref<unknown>): ReactElement;
@@ -62,6 +67,7 @@ const InputNumber = forwardRef(
       disableNegative,
       defaultValue,
       formatOnlyBlur,
+      integer,
       onKeyDown,
       onPaste,
       onChange,
@@ -110,7 +116,7 @@ const InputNumber = forwardRef(
       const { key } = e, isNotCommand = !isCommandKey(e);
 
       if (
-        (!isWhiteKeys(key, currentValue, comma, disableNegative) && isNotCommand) 
+        (!isWhiteKeys(key, currentValue, comma, disableNegative, integer) && isNotCommand) 
         || existSep(key, currentValue, comma)
       ){
         e.preventDefault();

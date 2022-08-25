@@ -24,6 +24,11 @@ const Template: ComponentStory<typeof InputNumber> = args => {
 
 export const Default = Template.bind({});
 
+export const Integer = Template.bind({});
+Integer.args = {
+  integer: true
+}
+
 export const Format = Template.bind({});
 Format.args = {
   format: true

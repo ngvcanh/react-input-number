@@ -8,9 +8,9 @@ const WHITELIST_KEYS = [
 
 const COMMAND_KEYS = ['a', 'c', 'x', 'v', 'z', 'r']
 
-export function isWhiteKeys(key: string, value: BigNumber, comma?: boolean, disableNegative?: boolean){
+export function isWhiteKeys(key: string, value: BigNumber, comma?: boolean, disableNegative?: boolean, integer?: boolean){
   return WHITELIST_KEYS
-  .concat([ comma ? ',' : '.' ])
+  .concat(integer ? [] : [ comma ? ',' : '.' ])
   .concat(!disableNegative && value.value === '' ? ['-'] : [])
   .includes(key);
 }
