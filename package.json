@@ -1,6 +1,6 @@
 {
   "name": "@kensoni/react-input-number",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "dependencies": {
     "@kensoni/big-number": "^0.0.8",
     "@kensoni/react-hooks": "^0.0.7"
