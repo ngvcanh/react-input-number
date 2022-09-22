@@ -3,7 +3,7 @@ import BigNumber from "@kensoni/big-number";
 
 const WHITELIST_KEYS = [
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-  'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Backspace'
+  'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Backspace', 'Tab'
 ];
 
 const COMMAND_KEYS = ['a', 'c', 'x', 'v', 'z', 'r']

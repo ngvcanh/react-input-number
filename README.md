@@ -4,6 +4,10 @@ Handle Input number with React. Support Material UI (MUI)
 
 ## Changelog
 
+### 0.0.6
+
+- Allow press `tab` key.
+
 ### 0.0.5
 
 - Fix enter double separator between integer and decimal part.
